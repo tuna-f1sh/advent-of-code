@@ -1,4 +1,5 @@
 from collections import defaultdict
+from functools import cmp_to_key
 from typing import Dict, List, Tuple, Set
 
 def process_file(f: str) -> Tuple[Dict[int, Set[int]], List[int]]:
@@ -35,4 +36,21 @@ def part1(rule_map, updates) -> int:
 
     return ret
 
-print(f"Part 1: {part1(*process_file('input'))}")
+def part2(rule_map, updates) -> int:
+    def cmp(a, b):
+        # if a is in b's rule_map then a comes before b
+        if a in rule_map[b]:
+            return 1
+        return -1
+
+    def is_sorted(page):
+        return all(cmp(page[i], page[i + 1]) == -1 for i in range(len(page) - 1))
+
+    return sum(
+        sorted(page, key=cmp_to_key(cmp))[len(page) // 2]
+        for page in updates if not is_sorted(page)
+    )
+
+rule_map, updates = process_file('input')
+print(f"Part 1: {part1(rule_map, updates)}")
+print(f"Part 2: {part2(rule_map, updates)}")
