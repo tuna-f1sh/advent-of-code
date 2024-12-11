@@ -5,31 +5,31 @@
     If none of the other rules apply, the stone is replaced by a new stone; the old stone's number multiplied by 2024 is engraved on the new stone.
 """
 
-from math import log, floor
-from typing import List
+from math import log10, floor
 
-def blink(stones: List[int]):
-    new_stones = []
-    for stone in stones:
-        # replace with 1
+def blink(stones: dict):
+    new_stones = {}
+    for stone, n in stones.items():
         if stone == 0:
-            new_stones.append(1)
-        elif (digits := (floor(log(stone, 10)) + 1)) % 2 < 1:
-            left = stone // 10 ** (digits // 2)
-            right = stone % 10 ** (digits // 2)
-            new_stones.append(left)
-            new_stones.append(right)
+            new_stones[1] = n + new_stones.get(1, 0)
+            continue
+        n_digits = floor(log10(stone)) + 1
+        if n_digits % 2 == 0:
+            left = stone // 10 ** (n_digits // 2)
+            right = stone - left * 10 ** (n_digits // 2)
+            new_stones[left] = n + new_stones.get(left, 0)
+            new_stones[right] = n + new_stones.get(right, 0)
         else:
-            new_stones.append(stone * 2024)
+            new_stones[2024 * stone] = n + new_stones.get(2024 * stone, 0)
     return new_stones
 
-def blinker(stones: List[int], count=25):
-    for i in range(count):
+def blinker(stones: dict, count=25):
+    for _ in range(count):
         stones = blink(stones)
-        print(f"Blinked: {i}")
-    return len(stones)
+    return sum(stones.values())
 
 with open("input") as f:
     stones = [int(x) for x in f.readline().strip().split()]
+    stones = {stone: stones.count(stone) for stone in stones}
 print(f"Part 1: {blinker(stones)}")
 print(f"Part 2: {blinker(stones, 75)}")
