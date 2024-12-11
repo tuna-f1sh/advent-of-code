@@ -1,10 +1,10 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 def parse_disk_map(f: str) -> List[int]:
     with open(f) as fh:
         return [int(x) for x in list(fh.read().strip())]
 
-def build_disk_map(disk_map: List[int]) -> List[Optional[int]]:
+def build_disk_map(disk_map: List[int]) -> List[Tuple[Optional[int], int]]:
     dm = []
     id = 0
     is_odd = len(disk_map) % 2 != 0
@@ -14,23 +14,21 @@ def build_disk_map(disk_map: List[int]) -> List[Optional[int]]:
         end = len(disk_map)
     for i in range(0, end, 2):
         disk, space = disk_map[i], disk_map[i+1]
-        for _ in range(disk):
-            dm.append(id)
-        for _ in range(space):
-            dm.append(None)
+        dm.append((id, disk))
+        if space > 0:
+            dm.append((None, space))
         id += 1
     if is_odd:
-        for _ in range(disk_map[-1]):
-            dm.append(id)
+        dm.append((id, disk_map[-1]))
     return dm
 
-def compact_disk(disk: List[Optional[int]]) -> List[Optional[int]]:
+def compact_disk(disk: List[Tuple[Optional[int], int]]) -> List[Optional[int]]:
     """Take file block one at a time from end (right) and move to empty space starting far left"""
     j = 0
     for i in range(len(disk)-1, 0, -1):
         if j >= i:
             break
-        if disk[i] is None:
+        if disk[i][0] is None:
             continue
         else:
             while disk[j] is not None and j < i:
