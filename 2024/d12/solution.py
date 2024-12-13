@@ -41,7 +41,21 @@ def calculate_perimeter(region: Set[complex]) -> int:
     return perimeter
 
 
-def calc_prices(plots: Dict[str, Set[complex]]) -> int:
+def calculate_sides(region: Set[complex]) -> int:
+    """
+    Calculate the number of unique sides in each direction for the given region.
+    Each edge between two squares is only counted once.
+    """
+    unique_sides = set()
+    for square in region:
+        neighbors = [square + d for d in [1, -1, 1j, -1j]]
+        for _, neighbor in enumerate(neighbors):
+            if neighbor in region:
+                side = (square + neighbor) / 2
+                unique_sides.add(side)
+    return len(unique_sides)
+
+def calc_prices(plots: Dict[str, Set[complex]], price_f) -> int:
     """
     Calculate the total price for fencing the regions of each type of plant plot.
     The price is the perimeter of the plot's region.
@@ -53,13 +67,12 @@ def calc_prices(plots: Dict[str, Set[complex]]) -> int:
             if square not in visited:
                 region = flood_fill(square, squares, visited)
                 area = len(region)
-                perimeter = calculate_perimeter(region)
+                perimeter = price_f(region)
                 total_price += area * perimeter
                 print(f"Plot {plot_type}: {area=}, {perimeter=} {total_price=} {region=}")
     return total_price
 
 if __name__ == '__main__':
-    plot = parse_plot('input')
-    print(plot)
-    print(f"Part 1: {calc_prices(plot)}")
-    # print(f"Part 2: {len(plot)}") # TODO calculate_sides(region)
+    plot = parse_plot('example')
+    print(f"Part 1: {calc_prices(plot, calculate_perimeter)}")
+    print(f"Part 2: {calc_prices(plot, calculate_sides)}")
