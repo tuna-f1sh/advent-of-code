@@ -34,6 +34,7 @@ class Prize:
         return [int(token[2:]) for token in tokens]
 
     def calc_tokens(self, a: Button, b: Button):
+        # https://en.wikipedia.org/wiki/Cramer%27s_rule#Explicit_formulas_for_small_systems
         denominator = a.x * b.y - a.y * b.x
         numerator = self.y * a.x - self.x * a.y
         b_presses = (numerator / denominator)
