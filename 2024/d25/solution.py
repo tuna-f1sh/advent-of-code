@@ -6,12 +6,10 @@ def parse_input(f: str):
         items = fh.read().strip().split('\n\n')
         for item in items:
             ref = None
-            for line in item.split('\n'):
+            for line in item.split('\n')[:-1]:
                 if ref is None:
                     ref = locks if line.startswith('#') else keys
                     ref.append([0] * len(line))
-                    continue
-                if all(c == '.' for c in line) or all(c == '#' for c in line):
                     continue
                 for j, c in enumerate(line):
                     if c == '#':
